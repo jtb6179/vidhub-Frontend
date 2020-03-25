@@ -1,12 +1,18 @@
 import React from "react"
 import VideoCard from "./VideoCard"
 import {withRouter} from 'react-router-dom'
-import VideoForm from './VideoForm'
+
 
 class VideoContainer extends React.Component {
 
     state = {
-        
+        clicked: false,
+    }
+
+    handleClick = (event) => {
+        this.setState({
+            clicked: !this.state.clicked
+        })
     }
     
     render(){
@@ -16,7 +22,7 @@ class VideoContainer extends React.Component {
         return(
             <div>
             <h1>List Of videos</h1>
-                <VideoForm />
+                
                 {arrayOfVideos} 
             </div>
         )

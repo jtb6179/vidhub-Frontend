@@ -3,58 +3,61 @@ import React from 'react'
 class VideoForm extends React.Component {
 
     state = {
-        clicked: false,
-        selectedFile: []
+        clicked: false, 
+        title: "",
+        description: "",
+        thumbnail: [],
+        given_video: []
     }
 
-    handleClick = (event) => {
+    fileInput = React.createRef()
+    
+    videoInput = React.createRef()
+
+    whenClicked = (event) => {
         this.setState({
             clicked: !this.state.clicked
         })
     }
+    
 
-    theFileFunction = (event) => {
-        event.preventDefault();
-        this.setState({
-            selectedFile: event.target.files[0]
-        });
+    handleSubmit = (event)=>{
+        event.preventDefault()
+        console.log(event.target)
         const formData = new FormData();
-        for(let i = 0; i < event.target.files.length; i++) {
-            formData.append('file', event.target.files[i])
-        }
-            fetch("http://localhost:3000/videos",  {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                }, body:  JSON.stringify(formData)
-            })
-                .then( res => res.json())
-                .then(data => {
-                    this.props.video.push(data)
-                })
-    }
+        formData.append('thumbnail', this.fileInput.current.files[0] )
+        formData.append('given_video', this.videoInput.current.files[0])
+        this.props.handleVideoForm(formData)
+      }
+
+    thisGoesInTheInputs = (event) => {
+        // console.log(event.target.files[0]);
+        
+        this.setState({
+          [event.target.name]: event.target.value
+        })
+      }
+   
 
     render(){
         return(
             <div>
-            <button >Upload a Video</button>
+            <button onClick={this.whenClicked} >Upload a Video</button>
                  { this.state.clicked ?  
-                   <form>
+                   <form onSubmit={this.handleSubmit}>
                         <label> Title:
-                            <input type="text" name='name'/>   
+                            <input type="text" name='title' onChange={this.thisGoesInTheInputs} value={this.state.title}/>   
                         </label>
                         <label> Description:
-                            <input type="text" name='name'/>   
+                            <input type="text" name='description' onChange={this.thisGoesInTheInputs} value={this.state.description} />   
                         </label>
                         <label> thumbnail:
-                            <input type="file" name='files' onChange={this.theFileFunction}/>   
+                            <input type="file" name='files'  onChange={() => console.log(this.fileInput)} ref={this.fileInput} />   
                         </label>
                         <label> Video:
-                            <input type="file" name='files' onChange={this.theFileFunction}/>   
+                            <input type="file" name='files' onChange={() => console.log(this.videoInput)} ref={this.videoInput}  />   
                         </label>
-                        <input type="submit"/>.
-
+                        <input type="submit" value="submit"/>
                     </form>
                    : 
                    null 
