@@ -9,6 +9,7 @@ import Form from './components/UserForm'
 import Home from './components/Home'
 import RegisterForm from './components/UserRegisterForm'
 import ProfileContainer from './components/ProfileContainer'
+import VideoForm from './components/UserForm'
 
 class App extends React.Component {
 
@@ -94,10 +95,52 @@ class App extends React.Component {
     return <ProfileContainer user={this.state.user} token={this.state.token} />
   }
 
+  handleVideoForm = (vidObj) => {
+    console.log(vidObj)
+    let videoObj = {
+      ...vidObj,
+      id: Math.floor(Math.random() *100)
+    }
+  fetch('http://localhost:3000/videos', {
+      method: 'POST',
+      body: vidObj
+      })
+      .then(res => res.json())
+      .then( (videoObj) => {
+        let videoArray = [videoObj, ...this.state.videos]
+        this.setState({
+          videos: videoArray
+        })
+    })
+  }
+
+  newVideo = (event) => {
+
+  const formData = new FormData();
+  formData.append('file', event.target.files[0])
+
+  fetch("http://localhost:3000/videos",  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    }, body:  formData
+  })
+    .then( res => res.json())
+    .then(newVidObj => {
+      let newVideoArray = [newVidObj, ...this.state.videos]
+      // this.props.addVideo(data)
+      this.setState({
+        videos: newVideoArray
+      })
+    })
+  }
+
+
   render() {
     // get info to backend through formData
     //carrierWave to save info coming in from frontEnd
-    console.log(this.state)
+    // console.log(this.state)
     return (
     <div >
     <NavBar />
@@ -111,6 +154,8 @@ class App extends React.Component {
       <Route path="/profile" render={ this.renderProfile } />
       <Route path="/" exact component={ Home } />
       <Route render={ () => <p>Page not Found</p> } />
+      <VideoForm newVideo={this.newVideo} handleVideoForm={this.handleVideoForm} />
+      <VideoContainer theVideo={this.state.videos} addingVideos={this.newVideo} pushingVidData={this.pushingVidData} />
 
       </Switch>
     </div>
