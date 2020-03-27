@@ -7,6 +7,8 @@ class VideoCard extends React.Component {
 
     render(){
         let {title, description, thumbnail, given_video} = this.props.video
+        console.log(this.props);
+        
         return(
             // <Route to= "/" />
             <div>

@@ -1,104 +1,145 @@
 import React from 'react';
 import './App.css';
-import Users from './components/UserContainer'
-
 import {Switch, Route, withRouter} from 'react-router-dom'
+import NavBar from './components/NavBar'
 import VideoContainer from './components/VideoContainer';
 import VideoForm from './components/VideoForm'
+import Form from './components/UserForm'
+import Home from './components/Home'
+import RegisterForm from './components/UserRegisterForm'
+import ProfileContainer from './components/ProfileContainer'
+import UserVideoForm from './components/UserForm'
+import 'materialize-css/dist/css/materialize.min.css';
 
 class App extends React.Component {
 
   state = {
-     users: [],
-     videos: []
-  }
+     user: {
+      username: "",
+      profile_name:"",
+      bio: "",
+      age: 0,
+      id: 0,
+     videos: [],
+    
+  },
+   token: "",
+  allVideos: []
+}
 
-  componentDidMount(){
-    fetch(`http://localhost:3000/users`)
-      .then(res => res.json())
-      .then(data => {
-        this.setState({
-          users: data
+  handleResp = (resp) => {
+      if (resp.user) {
+        localStorage.token = resp.token
+        this.setState(resp, () => {
+          this.props.history.push("/profile")
         })
+      }
+      else {
+        alert(resp.error)
+      }
+    }
+  
+  componentDidMount() {
+    if (localStorage.getItem("token")) {
+      fetch("http://localhost:3000/persist", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.token}`
+        }
       })
+        .then(r => r.json())
+        .then(this.handleResp)
+    }
   }
 
-  // pushingVidData = (input) => {
-  //   this.setState({ videos: [...this.state.videos, input] })
-  // }
+  
+
+  handleLoginSubmit = (userInfo) => {
+    console.log('login')
+    return fetch('http://localhost:3000/login', {
+      method: "POST",
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(userInfo)
+    })
+    .then( resp => resp.json())
+    .then( this.handleResp )
+  }
+
+
+  handleRegisterSubmit = (userInfo) => {
+    console.log('Register')
+    return fetch('http://localhost:3000/users', {
+      method: "POST",
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(userInfo)
+    })
+    .then( resp => resp.json())
+    .then( this.handleResp)
+  }
+
+  renderRegisterForm = (routerProps) => {
+    if (routerProps.location.pathname === "/register") {
+      return <RegisterForm formName="Register Form" handleSubmit={this.handleRegisterSubmit}/>
+    }
+  }
+
+  renderLoginForm = (routerProps) => {
+    if(routerProps.location.pathname === "/login") {
+      return <Form formName="Login Form" handleSubmit={this.handleLoginSubmit} />
+    }
+  }
+
+  renderProfile = (routerProps) => {
+    return <ProfileContainer handleVideoForm={this.handleVideoForm} user={this.state.user} token={this.state.token} />
+  }
 
   handleVideoForm = (vidObj) => {
     console.log(vidObj)
+
     let videoObj = {
       ...vidObj,
-    id: Math.floor(Math.random() *100)
+    id: Math.floor(Math.random() *1000)
   }
-
   fetch('http://localhost:3000/videos', {
     method: 'POST',
-     body: vidObj
+     body: videoObj
   })
     .then(res => res.json())
-    .then( (videoObj) => {
-      let videoArray = [videoObj, ...this.state.videos]
+    .then( (data) => {
+      let user = this.state.users 
+      let {videos}= user
+      let videoArray = [data, ...videos]
         this.setState({
           videos: videoArray
           })
     })
   }
 
-  newVideo = (event) => {
-    
-    const formData = new FormData();
-    formData.append('file', event.target.files[0])
-
-        fetch("http://localhost:3000/videos",  {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }, body:  formData
-        })
-            .then( res => res.json())
-            .then(newVidObj => {
-              let newVideoArray = [newVidObj, ...this.state.videos]
-                // this.props.addVideo(data)
-                this.setState({
-                  videos: newVideoArray
-                  })
-            })
-  }
-
-  // onFileChangeHandler = (e) => {
-  //   e.preventDefault();
-  //   this.setState({
-  //       selectedFile: e.target.files[0]
-  //   });
-  //   const formData = new FormData();
-  //   formData.append('file', this.state.selectedFile);
-  //   fetch('http://localhost:8080/upload', {
-  //       method: 'post',
-  //       body: formData
-  //   })
-
-
   render() {
-    // get info to backend through formData
-    //carrierWave to save info coming in from frontEnd
+    console.log(this.state);
+    
     return (
     <div >
-      <h1>App</h1>
-      {/* <Switch>
-      <Route path="/users" >
-        <Users theUser= {this.state.users} />
-      </Route>
+      <NavBar/>
+     
+      <Switch>
 
-      <Route path="/homepage" > */}
-          <VideoContainer theVideo={this.state.videos} 
-                                  addingVideos={this.newVideo} 
-                                  pushingVidData={this.pushingVidData}
+      <Route path="/login" render={ this.renderLoginForm } />
+      <Route path="/register" render={ this.renderRegisterForm } />
+      <Route path="/profile" render={ this.renderProfile } />
+      <Route path="/" exact component={ Home } />
+      <Route render={ () => <p>Page not Found</p> } />
+      <UserVideoForm  handleVideoForm={this.handleVideoForm} />
+
+      </Switch>
+          <VideoContainer theVideos={this.state.user.videos} 
+                                  
+                                  handleVideoForm={this.handleVideoForm}
                                   />
-           <VideoForm newVideo={this.newVideo} 
+           <VideoForm  
                                 handleVideoForm={this.handleVideoForm}
            />                       
       {/* </Route>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Modal, Button } from 'react-materialize';
 
 class VideoForm extends React.Component {
 
@@ -42,7 +43,9 @@ class VideoForm extends React.Component {
     render(){
         return(
             <div>
-            <button onClick={this.whenClicked} >Upload a Video</button>
+            
+                <Button onClick={this.whenClicked} >Upload a Video</Button>
+             <Modal>
                  { this.state.clicked ?  
                    <form onSubmit={this.handleSubmit}>
                         <label> Title:
@@ -62,7 +65,7 @@ class VideoForm extends React.Component {
                    : 
                    null 
                    }
-                 
+                  </Modal>
             </div>
         )
     }
