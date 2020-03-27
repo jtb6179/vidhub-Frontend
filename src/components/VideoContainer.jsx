@@ -14,8 +14,8 @@ class VideoContainer extends React.Component {
         })
         return(
             <div>
-            <h1>List Of videos</h1>  
-                {arrayOfVideos} 
+            <span>{arrayOfVideos}</span>  
+                 
             </div>
         )
     }

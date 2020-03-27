@@ -96,30 +96,30 @@ class App extends React.Component {
     return <ProfileContainer handleVideoForm={this.handleVideoForm} user={this.state.user} token={this.state.token} />
   }
 
-  handleVideoForm = (vidObj) => {
-    console.log(vidObj)
+  // handleVideoForm = (vidObj) => {
+  //   console.log(vidObj)
 
-    let videoObj = {
-      ...vidObj,
-    id: Math.floor(Math.random() *1000)
-  }
-  fetch('http://localhost:3000/videos', {
-    method: 'POST',
-     body: videoObj
-  })
-    .then(res => res.json())
-    .then( (data) => {
-      let user = this.state.users 
-      let {videos}= user
-      let videoArray = [data, ...videos]
-        this.setState({
-          videos: videoArray
-          })
-    })
-  }
+  //   let videoObj = {
+  //     ...vidObj,
+  //   id: Math.floor(Math.random() *1000)
+  // }
+  // fetch('http://localhost:3000/videos', {
+  //   method: 'POST',
+  //    body: videoObj
+  // })
+  //   .then(res => res.json())
+  //   .then( (data) => {
+  //    let userVideos = {...this.state.user}
+  //    let videoArray = [data, ...this.state.users.videos]
+  //    userVideos.videos = videoArray
+  //       this.setState({
+  //         userVideos
+  //         })
+  //   })
+  // }
 
   render() {
-    console.log(this.state);
+    console.log(this.state.user.videos);
     
     return (
     <div >
@@ -132,16 +132,15 @@ class App extends React.Component {
       <Route path="/profile" render={ this.renderProfile } />
       <Route path="/" exact component={ Home } />
       <Route render={ () => <p>Page not Found</p> } />
-      <UserVideoForm  handleVideoForm={this.handleVideoForm} />
+      <UserVideoForm  handleVideoForm={this.handleVideoForm} token={this.state.token} videos={this.state.user.videos}/>
 
       </Switch>
-          <VideoContainer theVideos={this.state.user.videos} 
+       
+          {/* <VideoContainer theVideos={this.state.user.videos} 
                                   
                                   handleVideoForm={this.handleVideoForm}
-                                  />
-           <VideoForm  
-                                handleVideoForm={this.handleVideoForm}
-           />                       
+                                  /> */}
+                               
       {/* </Route>
       </Switch> */}
     </div>
